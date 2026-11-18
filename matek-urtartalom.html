@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Liter, deciliter – gyakorló</title>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#EAF6FF;--card:#fff;--ink:#1F2A44;--soft:#5B6782;--sun:#FFC83D;--sunInk:#4A3500;
+  --ok:#23915A;--okBg:#DDF6E7;--bad:#D63A5E;--badBg:#FFE2E8;--line:#D5E4F2;--btn:#F3F8FD;
+  --water:#4DA8F0;--waterSoft:#CFE8FB;--glass:#F7FBFF;color-scheme:light}
+@media (prefers-color-scheme:dark){:root{--bg:#101826;--card:#1A2536;--ink:#EEF3FB;--soft:#A7B3C9;
+  --ok:#5FD49A;--okBg:#173A2A;--bad:#FF7C98;--badBg:#43202A;--line:#2C3A50;--btn:#22304A;
+  --water:#3D8FD6;--waterSoft:#1D3550;--glass:#152033;color-scheme:dark}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:19px/1.4 "Baloo 2","Trebuchet MS",system-ui,sans-serif}
+main{max-width:720px;margin:0 auto;padding:20px 16px 48px}
+h1{font-size:clamp(30px,8vw,46px);line-height:1.05;margin:8px 0 12px}
+h2{font-size:24px;line-height:1.15;margin:0 0 8px}
+p{margin:0 0 10px}
+.rule,.q,.card{background:var(--card);border:2px solid var(--line);border-radius:20px;padding:14px;margin-bottom:14px}
+.rule{display:flex;flex-wrap:wrap;gap:6px 14px;align-items:center;font-weight:700}
+.rule .tag{background:var(--waterSoft);border-radius:10px;padding:2px 10px;white-space:nowrap}
+.q.right{border-color:var(--ok)}.q.wrong{border-color:var(--bad)}
+.score{position:sticky;top:0;background:var(--bg);padding:8px 0;display:flex;justify-content:space-between;font-weight:700;z-index:5}
+.tabs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px}
+.tab{font:inherit;font-weight:700;border:2px solid var(--line);background:var(--card);color:var(--ink);border-radius:999px;padding:6px 16px;min-height:44px;cursor:pointer}
+.tab[aria-selected="true"]{background:var(--sun);border-color:var(--sun);color:var(--sunInk)}
+.panel{display:none}.panel.on{display:block}
+.sent{font-size:22px;font-weight:700;margin:0 0 10px}
+.pic{font-size:44px;line-height:1.1;margin-bottom:8px}
+.choices{display:flex;flex-wrap:wrap;gap:8px}
+.ch{font:inherit;font-weight:700;border:2px solid var(--line);background:var(--btn);color:var(--ink);border-radius:14px;padding:6px 16px;min-height:44px;min-width:56px;cursor:pointer}
+.ch:disabled{cursor:default}
+.ch.ok{background:var(--okBg);border-color:var(--ok);color:var(--ok)}
+.ch.no{background:var(--badBg);border-color:var(--bad);color:var(--bad)}
+input,select{font:inherit;font-size:20px;font-weight:700;border:2px solid var(--line);border-radius:12px;padding:6px 10px;min-height:44px;background:var(--btn);color:var(--ink)}
+.q input{width:150px}
+.fb{margin:8px 0 0;font-weight:700;min-height:1.4em}.fb.ok{color:var(--ok)}.fb.no{color:var(--bad)}
+.done{display:none;background:var(--sun);color:var(--sunInk);border-radius:20px;padding:16px;text-align:center;font-size:22px;font-weight:800}
+.done.on{display:block}
+.reset{font:inherit;border:0;background:none;color:var(--soft);text-decoration:underline;cursor:pointer;min-height:44px}
+:focus-visible{outline:3px solid var(--sun);outline-offset:2px}
+
+/* ---- Tanuld meg ---- */
+.soft{color:var(--soft)}
+.examples{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px}
+.ex{background:var(--btn);border-radius:14px;padding:8px 10px;line-height:1.2}
+.ex .e{font-size:30px;display:block}
+.ex b{display:block}
+.stairs{margin:6px 0 10px}
+.step{display:flex;align-items:baseline;gap:10px;font:inherit;width:52%;min-height:48px;margin-left:calc(var(--i)*12%);
+  border:2px solid var(--line);background:var(--btn);color:var(--ink);border-radius:14px;padding:4px 14px;cursor:pointer;text-align:left}
+.step b{font-size:26px;min-width:40px}
+.step small{font-size:16px;color:var(--soft)}
+.step[aria-pressed="true"]{background:var(--sun);border-color:var(--sun);color:var(--sunInk)}
+.step[aria-pressed="true"] small{color:var(--sunInk)}
+.hop{margin-left:calc(var(--i)*12% + 18px);font-size:16px;font-weight:700;color:var(--soft);line-height:1.3;padding:2px 0}
+.hop .dn{color:var(--ok)}.hop .up{color:var(--bad)}
+.hop.big .dn,.hop.big .up{text-decoration:underline wavy}
+.info{background:var(--waterSoft);border-radius:14px;padding:10px 12px;min-height:3em}
+.dir{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}
+.dir div{border-radius:14px;padding:8px 10px;background:var(--btn);line-height:1.25}
+.dir .d1{border-left:6px solid var(--ok)}.dir .d2{border-left:6px solid var(--bad)}
+.names{margin:10px 0 0;padding-left:20px}
+.jugwrap{display:flex;gap:16px;align-items:center;flex-wrap:wrap}
+.jug{width:150px;height:auto;flex:none}
+.jugside{flex:1;min-width:180px}
+.big{font-size:30px;font-weight:800;line-height:1.1;margin:4px 0}
+.btnrow{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}
+.conv{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.conv input{width:110px}
+.chain{display:flex;flex-wrap:wrap;align-items:center;gap:4px 6px;margin:12px 0 6px;font-weight:800;font-size:22px}
+.chip{background:var(--waterSoft);border-radius:12px;padding:2px 10px;white-space:nowrap}
+.chip.end{background:var(--sun);color:var(--sunInk)}
+.arr{font-size:15px;color:var(--soft);white-space:nowrap}
+.work{background:var(--btn);border-radius:14px;padding:10px 12px;margin-bottom:8px}
+.work b{white-space:nowrap}
+table{border-collapse:collapse;width:100%;font-weight:700}
+td{border-bottom:2px solid var(--line);padding:6px 4px}
+tr:last-child td{border-bottom:0}
+@media (max-width:480px){.step{width:62%;margin-left:calc(var(--i)*9%)}.hop{margin-left:calc(var(--i)*9% + 12px)}.dir{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<main>
+  <h1>Liter, deciliter, centiliter, milliliter 🥛</h1>
+  <div class="rule">
+    <span class="tag">1 l = 10 dl</span><span class="tag">1 dl = 10 cl</span><span class="tag">1 cl = 10 ml</span><span class="tag">1 hl = 100 l</span>
+    <span>Kisebb egységre váltasz: <span style="color:var(--ok)">· 10</span>. Nagyobbra: <span style="color:var(--bad)">: 10</span>.</span>
+  </div>
+  <div class="score"><span>Csillagok: <b id="stars">0</b> ⭐</span><button class="reset" id="reset">Újrakezdés</button></div>
+  <div class="tabs" id="tabs"></div>
+
+  <!-- ================= TANULD MEG ================= -->
+  <section class="panel" id="learn">
+    <div class="card">
+      <h2>Mi az az űrtartalom?</h2>
+      <p>Megmutatja, <b>mennyi folyadék fér</b> egy edénybe: mennyi víz a vödörbe, mennyi tej a pohárba. Literrel és a „testvéreivel” mérjük.</p>
+      <div class="examples">
+        <div class="ex"><span class="e">🥄</span><b>kb. 5 ml</b>egy kanál szirup</div>
+        <div class="ex"><span class="e">🥛</span><b>kb. 2 dl</b>egy pohár tej</div>
+        <div class="ex"><span class="e">🧃</span><b>kb. 2 dl</b>kis doboz gyümölcslé</div>
+        <div class="ex"><span class="e">🍾</span><b>1 l</b>egy nagy üveg víz</div>
+        <div class="ex"><span class="e">🪣</span><b>kb. 10 l</b>egy vödör víz</div>
+        <div class="ex"><span class="e">🛢️</span><b>1 hl = 100 l</b>egy nagy hordó</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>🪜 A mértékegység-lépcső</h2>
+      <p>Fent a nagy, lent a kicsi egység. <b>Kattints egy lépcsőfokra!</b></p>
+      <div class="stairs" id="stairs"></div>
+      <div class="info" id="stairInfo" aria-live="polite"></div>
+      <div class="dir">
+        <div class="d1"><b>⬇ Lefelé lépsz</b> (kisebb egység):<br>a szám <b>nagyobb</b> lesz → <b>szorozz 10-zel</b>, írj egy 0-t a végére.<br><span class="soft">3 l = 30 dl</span></div>
+        <div class="d2"><b>⬆ Felfelé lépsz</b> (nagyobb egység):<br>a szám <b>kisebb</b> lesz → <b>ossz 10-zel</b>, vegyél le egy 0-t a végéről.<br><span class="soft">50 cl = 5 dl</span></div>
+      </div>
+      <ul class="names">
+        <li><b>deci</b>liter: <b>10</b> kell belőle 1 literhez.</li>
+        <li><b>centi</b>liter: <b>100</b> kell belőle 1 literhez.</li>
+        <li><b>milli</b>liter: <b>1000</b> kell belőle 1 literhez.</li>
+        <li><b>hekto</b>liter: <b>100</b> liter van benne. Vigyázz, itt <b>100-at</b> ugrik!</li>
+      </ul>
+    </div>
+
+    <div class="card">
+      <h2>🫙 Töltsd meg a kancsót!</h2>
+      <p>A kancsóba pontosan <b>1 liter</b> fér. Hány pohár (1 dl) kell, hogy megteljen?</p>
+      <div class="jugwrap">
+        <svg class="jug" viewBox="0 0 170 230" aria-hidden="true">
+          <path d="M130 60 h14 a18 18 0 0 1 18 18 v44 a18 18 0 0 1 -18 18 h-14" fill="none" stroke="var(--line)" stroke-width="10"/>
+          <rect x="20" y="20" width="110" height="200" rx="14" fill="var(--glass)"/>
+          <rect id="jugWater" x="21" y="219" width="108" height="0" rx="10" fill="var(--water)" style="transition:y .35s,height .35s"/>
+          <g id="jugTicks"></g>
+          <rect x="20" y="20" width="110" height="200" rx="14" fill="none" stroke="var(--line)" stroke-width="4"/>
+        </svg>
+        <div class="jugside">
+          <div class="big" id="jugNow">0 dl</div>
+          <div id="jugMore" class="soft" aria-live="polite"></div>
+          <div class="btnrow">
+            <button class="ch" id="jugAdd">+ 1 pohár (1 dl) 🥛</button>
+            <button class="ch" id="jugSub">− 1 dl</button>
+            <button class="ch" id="jugEmpty">Kiöntöm</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>🔁 Átváltó gép</h2>
+      <p>Írj be egy számot, válaszd ki az egységeket, és nézd meg, hogyan lépked a gép a lépcsőn!</p>
+      <div class="conv">
+        <input id="cvN" type="number" inputmode="numeric" min="1" max="1000" value="3" aria-label="mennyiség">
+        <select id="cvFrom" aria-label="miből"></select>
+        <span>→</span>
+        <select id="cvTo" aria-label="mire"></select>
+      </div>
+      <div class="chain" id="cvChain"></div>
+      <p id="cvSay" aria-live="polite"></p>
+    </div>
+
+    <div class="card">
+      <h2>🧩 Két egység egyszerre</h2>
+      <div class="work"><b>2 l 3 dl = ? dl</b><br>2 l = 20 dl, és még 3 dl → 20 + 3 = <b>23 dl</b></div>
+      <div class="work"><b>45 dl = ? l ? dl</b><br>45 dl = 40 dl + 5 dl → 40 dl = 4 l → <b>4 l 5 dl</b></div>
+      <div class="work"><b>3 dl 6 cl = ? cl</b><br>3 dl = 30 cl, és még 6 cl → <b>36 cl</b></div>
+      <p class="soft">Tipp: először a nagyobb egységet váltsd át, aztán add hozzá a kisebbet!</p>
+    </div>
+
+    <div class="card">
+      <h2>📋 Puskatábla</h2>
+      <table>
+        <tr><td>1 hl</td><td>= 100 l</td></tr>
+        <tr><td>1 l</td><td>= 10 dl = 100 cl = 1000 ml</td></tr>
+        <tr><td>1 dl</td><td>= 10 cl = 100 ml</td></tr>
+        <tr><td>1 cl</td><td>= 10 ml</td></tr>
+      </table>
+      <p class="soft" style="margin-top:10px">Ha készen állsz, kattints fent a feladatokra! ⭐</p>
+    </div>
+  </section>
+
+  <div id="panels"></div>
+  <div class="done" id="done"></div>
+</main>
+<script>
+// ===== ADATOK =====
+const SECTIONS = [
+  { title: "1. Váltsd át", task: "Írd be a hiányzó számot!", items: [
+    { type:"input", text:"1 l = ___ dl", a:"10", num:true, why:"1 literben 10 deciliter van." },
+    { type:"input", text:"4 l = ___ dl", a:"40", num:true, why:"1 l = 10 dl, így 4 l = 4 · 10 = 40 dl." },
+    { type:"input", text:"7 dl = ___ cl", a:"70", num:true, why:"1 dl = 10 cl, így 7 · 10 = 70 cl." },
+    { type:"input", text:"3 cl = ___ ml", a:"30", num:true, why:"1 cl = 10 ml, így 3 · 10 = 30 ml." },
+    { type:"input", text:"60 dl = ___ l", a:"6", num:true, why:"10 dl = 1 l, felfelé lépsz: 60 : 10 = 6." },
+    { type:"input", text:"90 ml = ___ cl", a:"9", num:true, why:"10 ml = 1 cl, felfelé lépsz: 90 : 10 = 9." },
+    { type:"input", text:"2 dl = ___ ml", a:"200", num:true, why:"1 dl = 100 ml (két lépcső lefelé), így 2 · 100 = 200 ml." },
+    { type:"input", text:"5 l = ___ cl", a:"500", num:true, why:"1 l = 100 cl, így 5 · 100 = 500 cl." },
+    { type:"input", text:"400 cl = ___ l", a:"4", num:true, why:"100 cl = 1 l, így 400 : 100 = 4." },
+    { type:"input", text:"800 ml = ___ dl", a:"8", num:true, why:"100 ml = 1 dl, így 800 : 100 = 8." },
+    { type:"input", text:"1 l = ___ ml", a:"1000", num:true, why:"Három lépcső lefelé: 10 dl → 100 cl → 1000 ml." },
+    { type:"input", text:"3 hl = ___ l", a:"300", num:true, why:"1 hl = 100 l, így 3 · 100 = 300 l." },
+    { type:"input", text:"2 l 5 dl = ___ dl", a:"25", num:true, why:"2 l = 20 dl, és még 5 dl: 20 + 5 = 25 dl." },
+    { type:"input", text:"4 dl 6 cl = ___ cl", a:"46", num:true, why:"4 dl = 40 cl, és még 6 cl: 40 + 6 = 46 cl." },
+  ]},
+  { title: "2. Hasonlíts", task: "Melyik jel illik közéjük? Válts át, mielőtt döntesz!", items: [
+    { type:"choice", text:"3 l ___ 30 dl", opts:["<","=",">"], a:"=", why:"3 l = 30 dl, tehát egyenlők." },
+    { type:"choice", text:"5 dl ___ 5 l", opts:["<","=",">"], a:"<", why:"A deciliter kisebb, mint a liter: 5 l = 50 dl." },
+    { type:"choice", text:"80 cl ___ 8 dl", opts:["<","=",">"], a:"=", why:"8 dl = 80 cl, tehát egyenlők." },
+    { type:"choice", text:"2 l ___ 15 dl", opts:["<","=",">"], a:">", why:"2 l = 20 dl, és 20 dl több, mint 15 dl." },
+    { type:"choice", text:"300 ml ___ 3 dl", opts:["<","=",">"], a:"=", why:"3 dl = 300 ml, tehát egyenlők." },
+    { type:"choice", text:"1 l ___ 900 ml", opts:["<","=",">"], a:">", why:"1 l = 1000 ml, ez több, mint 900 ml." },
+    { type:"choice", text:"45 cl ___ 5 dl", opts:["<","=",">"], a:"<", why:"5 dl = 50 cl, és 45 cl kevesebb, mint 50 cl." },
+    { type:"choice", text:"6 dl ___ 600 ml", opts:["<","=",">"], a:"=", why:"1 dl = 100 ml, így 6 dl = 600 ml." },
+    { type:"choice", text:"1 hl ___ 90 l", opts:["<","=",">"], a:">", why:"1 hl = 100 l, ez több, mint 90 l." },
+    { type:"choice", text:"7 cl ___ 60 ml", opts:["<","=",">"], a:">", why:"7 cl = 70 ml, ez több, mint 60 ml." },
+    { type:"choice", text:"250 ml ___ 3 dl", opts:["<","=",">"], a:"<", why:"3 dl = 300 ml, és 250 ml kevesebb ennél." },
+    { type:"choice", text:"1 l 2 dl ___ 120 cl", opts:["<","=",">"], a:"=", why:"1 l 2 dl = 12 dl = 120 cl, tehát egyenlők." },
+  ]},
+  { title: "3. A való életben", task: "Kattints a jó válaszra!", items: [
+    { type:"choice", pic:"🥛", text:"Egy pohár tej kb. ennyi:", opts:["2 ml","2 dl","2 l"], a:"2 dl", why:"2 ml csak néhány csepp, 2 l egy nagy flakon. Egy pohár kb. 2 dl." },
+    { type:"choice", pic:"🥄", text:"Egy kanál szirup kb. ennyi:", opts:["5 ml","5 dl","5 l"], a:"5 ml", why:"A kanál nagyon kicsi, ezért a legkisebb egységgel, milliliterrel mérjük." },
+    { type:"choice", pic:"🪣", text:"Egy vödör víz kb. ennyi:", opts:["10 ml","10 dl","10 l"], a:"10 l", why:"10 dl csak 1 liter lenne, egy vödörbe kb. 10 liter fér." },
+    { type:"choice", pic:"🛁", text:"Egy kád fürdővíz kb. ennyi:", opts:["150 ml","15 dl","150 l"], a:"150 l", why:"A kád nagyon nagy, sok vödörnyi víz fér bele: kb. 150 l." },
+    { type:"choice", pic:"🧃🧃🧃", text:"Bori 3 doboz gyümölcslevet vett, mindegyikben 2 dl van. Hány dl ez összesen?", opts:["5 dl","6 dl","8 dl"], a:"6 dl", why:"3 · 2 dl = 6 dl." },
+    { type:"choice", pic:"🍾", text:"Egy 1 literes üvegből kiöntünk 4 dl vizet. Mennyi maradt benne?", opts:["4 dl","6 dl","14 dl"], a:"6 dl", why:"1 l = 10 dl, és 10 − 4 = 6 dl." },
+    { type:"choice", pic:"🥤", text:"Hány 2 dl-es pohár telik meg 1 liter üdítőből?", opts:["2","5","10"], a:"5", why:"1 l = 10 dl, és 10 : 2 = 5 pohár." },
+    { type:"choice", pic:"🐟", text:"Az akváriumba 4 vödör vizet öntünk, mindegyikben 10 l van. Hány liter víz lesz benne?", opts:["14 l","40 l","400 l"], a:"40 l", why:"4 · 10 l = 40 l." },
+    { type:"choice", pic:"🍲", text:"A fazékban 3 l leves van. Hány 5 dl-es adag lesz belőle?", opts:["3","6","15"], a:"6", why:"3 l = 30 dl, és 30 : 5 = 6 adag." },
+    { type:"choice", pic:"🫖", text:"Melyikben van a legtöbb tea?", opts:["8 dl","90 cl","700 ml"], a:"90 cl", why:"Váltsd át mind ml-re: 800 ml, 900 ml, 700 ml. A 90 cl = 900 ml a legtöbb." },
+    { type:"choice", pic:"💧", text:"A kancsóban 1 l víz van. Megiszunk belőle 250 ml-t. Mennyi maradt?", opts:["75 ml","750 ml","850 ml"], a:"750 ml", why:"1 l = 1000 ml, és 1000 − 250 = 750 ml." },
+    { type:"choice", pic:"🍼", text:"A kisbaba 1 dl tejet iszik egyszerre, naponta 5-ször. Hány dl tejet iszik egy nap alatt?", opts:["5 dl","6 dl","50 dl"], a:"5 dl", why:"5 · 1 dl = 5 dl." },
+  ]},
+];
+// ==================================================
+
+const PRAISE = ["Ügyes! ⭐","Szuper! ⭐","Pontosan! ⭐","Nagyon jó! ⭐","Ez az! ⭐"];
+let stars = 0, answered = 0;
+const total = SECTIONS.reduce((s,x)=>s+x.items.length,0);
+const norm = (v,num) => { v = String(v).trim().replace(/[.!?]+$/,"").toLowerCase();
+  return num ? v.replace(/\s/g,"").replace(/(hl|dl|cl|ml|l)$/,"").replace(/^0+(?=\d)/,"") : v; };
+
+function bump(right){
+  answered++; if(right) stars++;
+  document.getElementById("stars").textContent = stars;
+  if(answered===total){ const d=document.getElementById("done");
+    d.textContent = `Kész! ${stars} csillag a ${total}-ból! ` + (stars===total?"Hibátlan! 🏆":"Szép munka! 🎉");
+    d.classList.add("on"); }
+}
+function finish(card, right, item){
+  card.classList.add(right?"right":"wrong");
+  const fb = card.querySelector(".fb"); fb.className = "fb " + (right?"ok":"no");
+  const ans = Array.isArray(item.a) ? item.a[0] : item.a;
+  fb.textContent = right ? PRAISE[Math.floor(Math.random()*PRAISE.length)]
+                         : `A helyes válasz: ${ans}` + (item.why ? ` – ${item.why}` : "");
+  bump(right);
+}
+function render(startTab){
+  stars=0; answered=0; document.getElementById("stars").textContent=0;
+  document.getElementById("done").className="done";
+  const tabs=document.getElementById("tabs"), panels=document.getElementById("panels");
+  tabs.innerHTML=""; panels.innerHTML="";
+  const all=[];
+  const mkTab=txt=>{ const t=document.createElement("button"); t.className="tab"; t.textContent=txt; tabs.appendChild(t); return t; };
+  all.push([mkTab("📘 Tanuld meg"), document.getElementById("learn")]);
+  SECTIONS.forEach(sec=>{
+    const t=mkTab(sec.title);
+    const p=document.createElement("section"); p.className="panel";
+    p.innerHTML=`<p>${sec.task}</p>`;
+    sec.items.forEach((it,i)=>{
+      const c=document.createElement("div"); c.className="q";
+      c.innerHTML=(it.pic?`<div class="pic">${it.pic}</div>`:"")+`<p class="sent">${i+1}. ${it.text}</p><div class="body"></div><p class="fb" aria-live="polite"></p>`;
+      const body=c.querySelector(".body");
+      if(it.type==="choice"){
+        body.className="choices";
+        it.opts.forEach(o=>{ const b=document.createElement("button"); b.className="ch"; b.textContent=o;
+          b.onclick=()=>{ const right=o===it.a;
+            body.querySelectorAll("button").forEach(x=>{x.disabled=true; if(x.textContent===it.a) x.classList.add("ok");});
+            if(!right) b.classList.add("no"); finish(c,right,it); };
+          body.appendChild(b); });
+      } else {
+        body.innerHTML=`<input ${it.num?'inputmode="numeric"':''} autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="válasz"> <button class="ch">Ellenőrzés</button>`;
+        const inp=body.querySelector("input"), btn=body.querySelector("button");
+        const check=()=>{ if(!inp.value.trim()){ const fb=c.querySelector(".fb"); fb.className="fb no"; fb.textContent="Írj be valamit!"; return; }
+          const goods=[].concat(it.a).map(x=>norm(x,it.num));
+          inp.disabled=btn.disabled=true; finish(c, goods.includes(norm(inp.value,it.num)), it); };
+        btn.onclick=check; inp.addEventListener("keydown",e=>{ if(e.key==="Enter") check(); });
+      }
+      p.appendChild(c);
+    });
+    panels.appendChild(p); all.push([t,p]);
+  });
+  const select=k=>all.forEach(([t,p],i)=>{ t.setAttribute("aria-selected",i===k); p.classList.toggle("on",i===k); });
+  all.forEach(([t],i)=>t.onclick=()=>select(i));
+  select(startTab);
+}
+document.getElementById("reset").onclick=()=>{ render(1); document.getElementById("tabs").scrollIntoView({behavior:"smooth"}); };
+render(0);
+
+// ===== Tanuld meg: interaktív részek =====
+const UNITS = [
+  { k:"hl", n:"hektoliter", f:100000, info:"<b>1 hl = 100 l</b>. Hektoliterrel nagyon sok folyadékot mérünk: egy nagy hordót 🛢️ vagy egy medence vizét. Vigyázz: a literhez <b>100-at</b> kell ugrani!" },
+  { k:"l",  n:"liter",      f:1000,   info:"<b>1 l = 10 dl = 100 cl = 1000 ml</b>. Ez a „főnök”. Egy nagy üveg víz 🍾 vagy egy doboz tej 1 liter." },
+  { k:"dl", n:"deciliter",  f:100,    info:"<b>1 dl = 10 cl = 100 ml</b>, és <b>10 dl = 1 l</b>. Egy kis pohár 🥛 kb. 1–2 dl." },
+  { k:"cl", n:"centiliter", f:10,     info:"<b>1 cl = 10 ml</b>, és <b>100 cl = 1 l</b>. Kb. egy nagy korty 💧." },
+  { k:"ml", n:"milliliter", f:1,      info:"<b>A legkisebb!</b> <b>1000 ml = 1 l</b>. Egy kanál szirup 🥄 kb. 5 ml." },
+];
+const by10 = f => f===10?"10-zel":f===100?"100-zal":f.toLocaleString("hu-HU")+"-rel";
+
+(function stairs(){
+  const box=document.getElementById("stairs"), info=document.getElementById("stairInfo");
+  const btns=[];
+  UNITS.forEach((u,i)=>{
+    const b=document.createElement("button"); b.className="step"; b.style.setProperty("--i",i);
+    b.innerHTML=`<b>${u.k}</b><small>${u.n}</small>`; b.setAttribute("aria-pressed","false");
+    b.onclick=()=>{ btns.forEach(x=>x.setAttribute("aria-pressed",x===b)); info.innerHTML=`<b>${u.n}</b> (${u.k}): ${u.info}`; };
+    box.appendChild(b); btns.push(b);
+    if(i<UNITS.length-1){ const r=u.f/UNITS[i+1].f, h=document.createElement("div");
+      h.className="hop"+(r>10?" big":""); h.style.setProperty("--i",i);
+      h.innerHTML=`<span class="dn">⬇ · ${r}</span> &nbsp; <span class="up">⬆ : ${r}</span>`; box.appendChild(h); }
+  });
+  btns[1].click();
+})();
+
+(function jug(){
+  let dl=0; const water=document.getElementById("jugWater"), ticks=document.getElementById("jugTicks");
+  const now=document.getElementById("jugNow"), more=document.getElementById("jugMore");
+  for(let k=1;k<10;k++){ const y=220-k*20;
+    ticks.insertAdjacentHTML("beforeend",`<line x1="20" x2="${k===5?62:44}" y1="${y}" y2="${y}" stroke="var(--soft)" stroke-width="2"/>`+
+      (k===5?`<text x="66" y="${y+5}" font-size="14" font-weight="700" fill="var(--soft)">5 dl</text>`:"")); }
+  ticks.insertAdjacentHTML("beforeend",`<text x="40" y="38" font-size="15" font-weight="800" fill="var(--soft)">1 l</text>`);
+  const show=()=>{ water.setAttribute("y",220-dl*20); water.setAttribute("height",dl*20);
+    if(dl===10){ now.textContent="10 dl = 1 l 🎉"; more.textContent="Megtelt! 10 pohár (10 dl) pontosan 1 liter. Ugyanennyi: 100 cl vagy 1000 ml."; }
+    else if(dl===0){ now.textContent="0 dl"; more.textContent="Üres a kancsó. Önts bele egy pohárral!"; }
+    else { now.textContent=`${dl} dl`; more.textContent=`= ${dl*10} cl = ${dl*100} ml. Még ${10-dl} dl kell, hogy 1 liter legyen.`; }
+    document.getElementById("jugAdd").disabled=dl===10; document.getElementById("jugSub").disabled=dl===0; };
+  document.getElementById("jugAdd").onclick=()=>{ if(dl<10){dl++;show();} };
+  document.getElementById("jugSub").onclick=()=>{ if(dl>0){dl--;show();} };
+  document.getElementById("jugEmpty").onclick=()=>{ dl=0; show(); };
+  show();
+})();
+
+(function converter(){
+  const n=document.getElementById("cvN"), from=document.getElementById("cvFrom"), to=document.getElementById("cvTo");
+  const chain=document.getElementById("cvChain"), say=document.getElementById("cvSay");
+  UNITS.forEach((u,i)=>{ from.add(new Option(u.k,i)); to.add(new Option(u.k,i)); });
+  from.value=1; to.value=3;
+  const fmt=x=>x.toLocaleString("hu-HU");
+  const chip=(v,u,end)=>`<span class="chip${end?" end":""}">${fmt(v)} ${u}</span>`;
+  const run=()=>{
+    const v=Math.floor(Number(n.value)), i=+from.value, j=+to.value;
+    if(!(v>=1&&v<=1000)){ chain.innerHTML=""; say.textContent="Írj be egy számot 1 és 1000 között!"; return; }
+    if(i===j){ chain.innerHTML=chip(v,UNITS[i].k,true); say.textContent="Ugyanaz az egység, nem kell váltani. 🙂"; return; }
+    const total=UNITS[i].f/UNITS[j].f;
+    if(j>i){ // lefelé
+      let html=chip(v,UNITS[i].k), cur=v;
+      for(let k=i;k<j;k++){ const r=UNITS[k].f/UNITS[k+1].f; cur*=r; html+=`<span class="arr">· ${r} →</span>`+chip(cur,UNITS[k+1].k,k+1===j); }
+      chain.innerHTML=html;
+      say.innerHTML=`<b>${j-i} lépcsőt léptél lefelé</b>, kisebb egységre váltottál, ezért a szám nagyobb lett. Összesen ${by10(total)} szoroztál: <b>${fmt(v)} ${UNITS[i].k} = ${fmt(v*total)} ${UNITS[j].k}</b>.`;
+    } else { // felfelé
+      const r=UNITS[j].f/UNITS[i].f;
+      if(v%r!==0){
+        let best=i; for(let k=i-1;k>=j;k--){ if(v%(UNITS[k].f/UNITS[i].f)===0) best=k; else break; }
+        chain.innerHTML=chip(v,UNITS[i].k);
+        say.innerHTML=`Felfelé ${by10(r)} kellene osztani, de ${fmt(v)} : ${fmt(r)} nem jön ki egész számra. 🤔` +
+          (best<i?` Próbáld inkább <b>${UNITS[best].k}</b>-re: ${fmt(v)} ${UNITS[i].k} = <b>${fmt(v/(UNITS[best].f/UNITS[i].f))} ${UNITS[best].k}</b>.`:" Válassz olyan számot, ami 0-ra végződik!");
+        return; }
+      let html=chip(v,UNITS[i].k), cur=v;
+      for(let k=i;k>j;k--){ const s=UNITS[k-1].f/UNITS[k].f; cur/=s; html+=`<span class="arr">: ${s} →</span>`+chip(cur,UNITS[k-1].k,k-1===j); }
+      chain.innerHTML=html;
+      say.innerHTML=`<b>${i-j} lépcsőt léptél felfelé</b>, nagyobb egységre váltottál, ezért a szám kisebb lett. Összesen ${by10(r)} osztottál: <b>${fmt(v)} ${UNITS[i].k} = ${fmt(v/r)} ${UNITS[j].k}</b>.`;
+    }
+  };
+  [n,from,to].forEach(el=>el.addEventListener("input",run)); run();
+})();
+</script>
+</body>
+</html>
